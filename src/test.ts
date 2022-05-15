@@ -1,5 +1,5 @@
 import { readFile } from 'fs/promises'
-import { makeItAQuote } from './main'
+import { makeItAQuote } from './utils'
 
 const main = async (): Promise<void> => {
   const avatarBuffer = await readFile('./src/assets/default_profile.png')
