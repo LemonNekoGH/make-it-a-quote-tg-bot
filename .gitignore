@@ -24,4 +24,4 @@ dist-ssr
 *.sw?
 
 # 测试用图片输出名称
-test.png
+pngTest/

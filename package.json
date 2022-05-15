@@ -3,7 +3,8 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "dev": "ts-node src/main.ts"
+    "dev": "ts-node src/main.ts",
+    "test": "ts-node src/test.ts"
   },
   "devDependencies": {
     "@types/node": "^16.11.35",
@@ -21,7 +22,8 @@
     "caman": "^4.1.2",
     "grammy": "^1.8.3",
     "jimp": "^0.16.1",
+    "jimp-gradient": "^1.0.1",
     "log4js": "^6.4.6",
-    "text-to-image": "^5.2.0"
+    "ultimate-text-to-image": "^1.0.0"
   }
 }
