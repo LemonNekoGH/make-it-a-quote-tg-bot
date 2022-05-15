@@ -1,4 +1,4 @@
-import { getBotToken } from './config'
+import { getBotToken, getEnvVarOrArg } from './config'
 import log4js from 'log4js'
 import { Bot, InputFile } from 'grammy'
 import { readFile } from 'fs/promises'
@@ -13,6 +13,7 @@ const main = async (): Promise<void> => {
   })
   // 获取 token
   const token = await getBotToken()
+  const notifyChatId = await getEnvVarOrArg('NOTIFY_CHAT_ID', '--notify=', '启动时通知到的对话 id')
   // 获取 logger
   const logger = log4js.getLogger()
   // 读取默认的头像文件
@@ -101,7 +102,12 @@ const main = async (): Promise<void> => {
     logger.error('出现了错误, ' + err.message)
   })
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  bot.start()
+  bot.start({
+    // 在启动时发送一条通知
+    onStart: async (info) => {
+      await bot.api.sendMessage(notifyChatId, `make-it-a-quote-bot 已启动，bot 用户名是 @${info.username}`)
+    }
+  })
   logger.info('QuoteMaker Bot 已启动，按下 Ctrl + C 停止运行')
 }
 
