@@ -40,14 +40,16 @@ export const genTextWithIdPic = async (id: string, text: string): Promise<Buffer
       maxWidth: 500,
       fontSize: 32,
       fontColor: 0xffffff,
-      lineHeight: 36
+      lineHeight: 36,
+      fontFamily: 'AliBabaPuHui'
     }), // 正文部分
     new UltimateTextToImage('@' + id, {
       fontSize: 20,
       fontColor: 0xffffff99,
       align: 'right',
       width: 500,
-      marginTop: 32
+      marginTop: 32,
+      fontFamily: 'AliBabaPuHui'
     })
   ], {
     margin: 32

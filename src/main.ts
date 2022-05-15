@@ -3,6 +3,7 @@ import log4js from 'log4js'
 import { Bot, InputFile } from 'grammy'
 import { readFile } from 'fs/promises'
 import { jimpToInputFile, makeItAQuote } from './utils'
+import { registerFont } from 'ultimate-text-to-image'
 
 const main = async (): Promise<void> => {
   // 配置 logger
@@ -20,6 +21,11 @@ const main = async (): Promise<void> => {
   // 读取遮罩文件
   const mask = await readFile('./src/assets/gradient-mask.png')
   logger.debug('读取到了遮罩文件')
+  // 读取字体文件
+  registerFont('./src/assets/Alibaba-PuHuiTi-Regular.ttf', {
+    family: 'AliBabaPuHui'
+  })
+  logger.debug('已注册字体')
   // 构建一个 bot
   const bot = new Bot(token)
   bot.command('quote', async (ctx) => {
