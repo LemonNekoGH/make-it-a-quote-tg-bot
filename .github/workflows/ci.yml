@@ -1,0 +1,54 @@
+name: Build And Push Docker Container
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  send-start-message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 发送构建开始的消息到 TG
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TG_TO }}
+          token: ${{ secrets.TG_TOKEN }}
+          format: markdown
+          message: |
+            构建开始
+            名称：MakeItAQuote TG Bot
+            构建基于： `${{ github.event.ref }}` `${{ github.event.commits[0].id }}`
+            提交消息：${{ github.event.commits[0].message }}（${{ github.event.commits[0].author.name }}）
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取项目代码
+      - name: Checkout
+        uses: actions/checkout@v3
+      # 登录到 GitHub
+      - name: Login to GitHub
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # 构建和推送镜像
+      - name: Build And Push Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            ghcr.io/lemonnekogh/make-it-a-quote-tg:latest
+      - name: 发送构建完成的消息到 TG
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TG_TO }}
+          token: ${{ secrets.TG_TOKEN }}
+          format: markdown
+          message: |
+            构建并上传镜像完成
+            名称：MakeItAQuote TG Bot
+            构建基于： `${{ github.event.ref }}` `${{ github.event.commits[0].id }}`
+            提交消息：${{ github.event.commits[0].message }}（${{ github.event.commits[0].author.name }}）
