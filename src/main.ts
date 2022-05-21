@@ -2,7 +2,7 @@ import { getBotToken, getEnvVarOrArg } from './config'
 import log4js from 'log4js'
 import { Bot, InputFile } from 'grammy'
 import { readFile } from 'fs/promises'
-import { jimpToInputFile, makeItAQuote } from './utils'
+import { getArgsFromMessageText, jimpToInputFile, makeItAQuote } from './utils'
 import { registerFont } from 'ultimate-text-to-image'
 
 const main = async (): Promise<void> => {
@@ -65,6 +65,8 @@ const main = async (): Promise<void> => {
     }
     const { message_id: replyId } = await ctx.reply('正在进行处理，请稍等...')
     logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 已成功发送“处理中”提示信息`)
+    // 进行参数处理
+    const args = getArgsFromMessageText(msg.text)
     // 被回复者 id
     const username = sender.username ?? 'no_name'
     // 被回复的消息内容
@@ -75,7 +77,7 @@ const main = async (): Promise<void> => {
     if (avatar.length === 0) {
       logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 被回复的消息作者是没有头像的`)
       // 如果没有头像，使用默认头像进行图片的合成
-      const res = await makeItAQuote(defaultAvatar, mask, username, text)
+      const res = await makeItAQuote(defaultAvatar, mask, username, text, args)
       quoted = await jimpToInputFile(res)
     } else {
       // 有头像，使用头像组中的第一个进行图片的合成
@@ -87,7 +89,7 @@ const main = async (): Promise<void> => {
         return
       }
       logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 被回复的消息作者头像在 https://api.telegram.org/file/bot${token}/${file.file_path}`)
-      const res = await makeItAQuote(`https://api.telegram.org/file/bot${token}/${file.file_path}`, mask, username, text)
+      const res = await makeItAQuote(`https://api.telegram.org/file/bot${token}/${file.file_path}`, mask, username, text, args)
       quoted = await jimpToInputFile(res)
     }
     logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 图片处理完成`)
