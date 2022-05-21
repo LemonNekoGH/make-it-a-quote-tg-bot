@@ -63,7 +63,7 @@ const main = async (): Promise<void> => {
       })
       return
     }
-    await ctx.reply('正在进行处理，请稍等...')
+    const { message_id: replyId } = await ctx.reply('正在进行处理，请稍等...')
     logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 已成功发送“处理中”提示信息`)
     // 被回复者 id
     const username = sender.username ?? 'no_name'
@@ -94,6 +94,9 @@ const main = async (): Promise<void> => {
     await ctx.replyWithPhoto(quoted, {
       reply_to_message_id: messageId
     })
+    logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 图片发送完成`)
+    await ctx.api.deleteMessage(chatId, replyId)
+    logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 提示信息删除完成`)
   })
   // 错误处理
   bot.catch(e => {
