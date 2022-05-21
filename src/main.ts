@@ -91,11 +91,6 @@ const main = async (): Promise<void> => {
       reply_to_message_id: messageId
     })
   })
-  bot.command('hug', async (ctx) => {
-    await ctx.reply('抱抱', {
-      reply_to_message_id: ctx.message?.message_id
-    })
-  })
   // 错误处理
   bot.catch(e => {
     const err = e as Error
