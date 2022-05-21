@@ -29,6 +29,7 @@ const main = async (): Promise<void> => {
   logger.debug('已注册字体')
   // 构建一个 bot
   const bot = new Bot(token)
+  // 处理 quote 命令
   bot.command('quote', async (ctx) => {
     const msg = ctx.message
     if (typeof msg === 'undefined') {
@@ -62,6 +63,8 @@ const main = async (): Promise<void> => {
       })
       return
     }
+    await ctx.reply('正在进行处理，请稍等...')
+    logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 已成功发送“处理中”提示信息`)
     // 被回复者 id
     const username = sender.username ?? 'no_name'
     // 被回复的消息内容
@@ -87,6 +90,7 @@ const main = async (): Promise<void> => {
       const res = await makeItAQuote(`https://api.telegram.org/file/bot${token}/${file.file_path}`, mask, username, text)
       quoted = await jimpToInputFile(res)
     }
+    logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 图片处理完成`)
     await ctx.replyWithPhoto(quoted, {
       reply_to_message_id: messageId
     })
