@@ -1,6 +1,9 @@
 import axios from 'axios'
 import { getLogger } from 'log4js'
 
+export let token: string
+export let notifyChatId: string
+
 /**
  * 从环境变量或参数中获取参数
  * @param envVarName 环境变量名
@@ -54,4 +57,10 @@ export const getBotToken = async (): Promise<string> => {
   }
   logger.debug('token 是有效的')
   return token
+}
+
+// 初始化配置
+export const initConfig = async (): Promise<void> => {
+  token = await getBotToken()
+  notifyChatId = await getEnvVarOrArg('NOTIFY_CHAT_ID', '--notify-chat-id=', '通知聊天 ID')
 }

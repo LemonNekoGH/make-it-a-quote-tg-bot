@@ -1,25 +1,16 @@
-import { InputFile } from 'grammy'
+import { Bot, InputFile } from 'grammy'
 import Jimp from 'jimp'
 import { getLogger } from 'log4js'
 // import path from 'path'
 import { UltimateTextToImage, VerticalImage } from 'ultimate-text-to-image'
-
-/**
- * 命令参数
- */
-export interface Args {
-  quoteMarkLeft: string // 自定义引号字符，左侧
-  quoteMarkRight: string // 自定义引号字符，右侧
-  gray: boolean // 是否把头像处理成灰色
-}
-
+import { ArgsFromMsg, Commnad } from './types'
 /**
  * 把任意头像、id、文字转成一张图片
  * @param avatar 头像，buffer 类型
  * @param id 会在前面加上一个 @
  * @param text 图片正文
  */
-export const makeItAQuote = async (avatarIn: Buffer | string, maskIn: Buffer, idIn: string, textIn: string, commandArgs: Args): Promise<Jimp> => {
+export const makeItAQuote = async (avatarIn: Buffer | string, maskIn: Buffer, idIn: string, textIn: string, commandArgs: ArgsFromMsg): Promise<Jimp> => {
   const logger = getLogger()
   let avatar: Jimp
   // 这个类型判断是为了通过类型检查
@@ -50,7 +41,7 @@ export const makeItAQuote = async (avatarIn: Buffer | string, maskIn: Buffer, id
  * @param id 会在前面加上一个 @
  * @param text 图片正文
  */
-export const genTextWithIdPic = async (id: string, text: string, commandArgs: Args): Promise<Buffer> => {
+export const genTextWithIdPic = async (id: string, text: string, commandArgs: ArgsFromMsg): Promise<Buffer> => {
   const logger = getLogger()
   logger.debug(`使用了引号 ${commandArgs.quoteMarkLeft}${commandArgs.quoteMarkRight}`)
   const image = new VerticalImage([
@@ -85,7 +76,7 @@ export const jimpToInputFile = async (src: Jimp): Promise<InputFile> => {
 }
 
 // 从消息文本中获取参数
-export const getArgsFromMessageText = ((): ((text: string) => Args) => {
+export const getArgsFromMessageText = ((): ((text: string) => ArgsFromMsg) => {
   // 获取参数的方法，不需要外部可以访问
   const getArgValue = (rawArgs: string[], prefix: string): string => {
     for (const arg0 of rawArgs) {
@@ -104,9 +95,9 @@ export const getArgsFromMessageText = ((): ((text: string) => Args) => {
     }
     return false
   }
-  return (text: string): Args => {
+  return (text: string): ArgsFromMsg => {
     // 默认参数
-    const defaultArgs: Args = {
+    const defaultArgs: ArgsFromMsg = {
       quoteMarkLeft: '"',
       quoteMarkRight: '"',
       gray: false
@@ -122,3 +113,14 @@ export const getArgsFromMessageText = ((): ((text: string) => Args) => {
     return defaultArgs
   }
 })()
+
+/**
+ * 使用命令集
+ * @param bot 机器人实例
+ * @param commands
+ */
+export const useCommands = <B extends Bot>(bot: B, commands: Commnad[]): void => {
+  for (const command of commands) {
+    command.use(bot)
+  }
+}
