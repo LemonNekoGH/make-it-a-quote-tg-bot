@@ -78,13 +78,13 @@ export const jimpToInputFile = async (src: Jimp): Promise<InputFile> => {
 // 从消息文本中获取参数
 export const getArgsFromMessageText = ((): ((text: string) => ArgsFromMsg) => {
   // 获取参数的方法，不需要外部可以访问
-  const getArgValue = (rawArgs: string[], prefix: string): string => {
+  const getArgValue = (rawArgs: string[], prefix: string): string | undefined => {
     for (const arg0 of rawArgs) {
       if (arg0.startsWith(prefix)) {
         return arg0.substring(prefix.length)
       }
     }
-    return ''
+    return undefined
   }
   // 获取旗标的方法，不需要外部可以访问
   const getFlag = (rawArgs: string[], flag: string): boolean => {
