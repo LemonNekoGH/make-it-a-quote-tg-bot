@@ -40,12 +40,29 @@ const handleQuoteCommand: MyHandler = async (ctx) => {
   logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 已成功发送“处理中”提示信息`)
   // 进行参数处理
   const args = getArgsFromMessageText(msg.text)
-  // 被回复者 id，如果是转发的消息，获取被转发者 id
-  const username = replyMsg.forward_from?.username ?? sender.username ?? 'no_name'
+  let username = ''
+  let avatarToGet: number
+  // 如果是被转发的消息
+  if (typeof replyMsg.forward_from !== 'undefined') {
+    logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 是一条被转发的消息`)
+    // 获取被转发者的用户名
+    username = replyMsg.forward_from.username ?? 'no_name'
+    avatarToGet = replyMsg.forward_from.id
+  } else if (typeof replyMsg.forward_sender_name !== 'undefined') {
+    logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 是一条被转发的消息，但是转发人没有允许它人查看被转发者的信息`)
+    await ctx.reply('你回复的这条消息是一个被转发的消息，但是受到转发者的隐私设置限制，获取不到被转发人的信息', {
+      reply_to_message_id: ctx.message?.message_id
+    })
+    return
+  } else {
+    // 获取被回复者的用户名
+    username = sender.username ?? 'no_name'
+    avatarToGet = sender.id
+  }
   // 被回复的消息内容
   const text = replyMsg.text
   // 被回复者的头像，这里取第一个，如果是被转发的消息，获取被转发者的头像
-  const avatar = (await ctx.api.getUserProfilePhotos(replyMsg.forward_from?.id ?? sender.id)).photos
+  const avatar = (await ctx.api.getUserProfilePhotos(avatarToGet)).photos
   let quoted: InputFile | undefined
   if (avatar.length === 0) {
     logger.debug(`[chat: ${chatId}, command: quote, msg: ${messageId}] 被回复的消息作者是没有头像的`)
