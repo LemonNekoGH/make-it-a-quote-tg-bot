@@ -1,4 +1,4 @@
-name: Unit Test On Main
+name: Unit Test On Go
 on:
   push:
     branches:
@@ -15,7 +15,7 @@ jobs:
           token: ${{ secrets.TG_TOKEN }}
           format: markdown
           message: |
-            Unit Test End
+            Unit Test Start
             Name: QuoteBot
             Url: https://github.com/LemonNekoGH/make-it-a-quote-tg
             Trigger: `${{ github.event.ref }}` `${{ github.event.commits[0].id }}`
