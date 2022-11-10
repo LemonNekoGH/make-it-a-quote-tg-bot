@@ -32,6 +32,9 @@ jobs:
     name: build
     runs-on: ubuntu-latest
     steps:
+      # 拉取项目代码
+      - name: Checkout
+        uses: actions/checkout@v3
       # 登录到 GitHub
       - name: Login to GitHub
         uses: docker/login-action@v1
@@ -39,6 +42,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      # 生成镜像的标签
+      - name: Build tag name
+        run: echo 'TAG_NAME=${{ github.ref_name }}' | tr '/' '-' >> $GITHUB_ENV
       # 构建和推送镜像
       - name: Build And Push Docker Image
         uses: docker/build-push-action@v2

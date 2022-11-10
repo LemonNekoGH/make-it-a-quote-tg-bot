@@ -2,7 +2,7 @@ name: Unit Test On Main
 on:
   push:
     branches:
-      - main
+      - go
 
 jobs:
   start:
