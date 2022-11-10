@@ -25,3 +25,5 @@ dist-ssr
 
 # 测试用图片输出名称
 pngTest/
+
+config.yaml

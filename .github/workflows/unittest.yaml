@@ -1,0 +1,53 @@
+name: Unit Test On Main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send start message to telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TG_TO }}
+          token: ${{ secrets.TG_TOKEN }}
+          format: markdown
+          message: |
+            Unit Test End
+            Name: QuoteBot
+            Url: https://github.com/LemonNekoGH/make-it-a-quote-tg
+            Trigger: `${{ github.event.ref }}` `${{ github.event.commits[0].id }}`
+  unittest:
+    needs: start
+    runs-on: ubuntu-latest
+    steps:
+      # checkout code
+      - uses: actions/checkout@v3
+      # set up go
+      - uses: actions/setup-go@v2
+        with:
+          go-version: "^1.18.0"
+      # Scan for protential mistakes
+      - name: Vet
+        run: |
+          go vet ./...
+      - name: Unit tests
+        run: |
+          go test $(go list ./...) -coverprofile coverage.txt -covermode atomic -p=1
+          go tool cover -func coverage.txt
+      # Codecov
+      - uses: codecov/codecov-action@v2
+      - name: Send end message to telegram
+        uses: appleboy/telegram-action@master
+        if: always()
+        with:
+          to: ${{ secrets.TG_TO }}
+          token: ${{ secrets.TG_TOKEN }}
+          format: markdown
+          message: |
+            Unit Test End
+            Name: QuoteBot
+            Url: https://github.com/LemonNekoGH/make-it-a-quote-tg
+            Trigger: `${{ github.event.ref }}` `${{ github.event.commits[0].id }}`

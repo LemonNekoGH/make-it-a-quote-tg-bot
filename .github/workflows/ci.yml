@@ -5,13 +5,19 @@ permissions:
 
 on:
   push:
-    branches:
-      - main
+    tags:
+      - go/*
 
 jobs:
   send-start-message:
     runs-on: ubuntu-latest
     steps:
+      # 拉取项目代码
+      - name: Checkout
+        uses: actions/checkout@v3
+      # 生成镜像的标签
+      - name: Build tag name
+        run: echo 'TAG_NAME=${{ github.ref_name }}' | tr '/' '-' >> $GITHUB_ENV
       - name: 发送构建开始的消息到 TG
         uses: appleboy/telegram-action@master
         with:
@@ -21,15 +27,11 @@ jobs:
           message: |
             构建开始
             名称：MakeItAQuote TG Bot
-            构建基于： `${{ github.event.ref }}` `${{ github.event.commits[0].id }}`
-            提交消息：${{ github.event.commits[0].message }}（${{ github.event.commits[0].author.name }}）
+            版本：`${{ env.TAG_NAME }}`
   build:
     name: build
     runs-on: ubuntu-latest
     steps:
-      # 拉取项目代码
-      - name: Checkout
-        uses: actions/checkout@v3
       # 登录到 GitHub
       - name: Login to GitHub
         uses: docker/login-action@v1
@@ -43,7 +45,8 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/lemonnekogh/make-it-a-quote-tg:latest
+            ghcr.io/lemonnekogh/make-it-a-quote-tg:${{ env.TAG_NAME }}
+            ghcr.io/lemonnekogh/make-it-a-quote-tg:go-latest
       - name: 发送构建完成的消息到 TG
         uses: appleboy/telegram-action@master
         with:
@@ -53,5 +56,4 @@ jobs:
           message: |
             构建并上传镜像完成
             名称：MakeItAQuote TG Bot
-            构建基于： `${{ github.event.ref }}` `${{ github.event.commits[0].id }}`
-            提交消息：${{ github.event.commits[0].message }}（${{ github.event.commits[0].author.name }}）
+            版本：`${{ env.TAG_NAME }}`
