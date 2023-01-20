@@ -7,29 +7,46 @@ import (
 
 	"github.com/getsentry/sentry-go"
 	"github.com/kataras/golog"
+	"github.com/samber/do"
 )
 
-var logger *golog.Logger
+type LoggerService interface {
+	SetLevel(levelName string)
+	Debugf(format string, args ...any)
+	Infof(format string, args ...any)
+	Warnf(format string, args ...any)
+	Errorf(format string, args ...any)
+	Fatalf(format string, args ...any)
+	Logf(level golog.Level, format string, arg ...any)
+}
 
-func Init() {
-	logger = golog.New()
+func NewLoggerService(injector *do.Injector) (LoggerService, error) {
+	s := loggerServiceImpl{
+		logger: golog.New(),
+	}
+	s.SetLevel("DEBUG")
+	return &s, nil
+}
+
+type loggerServiceImpl struct {
+	logger *golog.Logger
 }
 
 // 设置日志级别
-func SetLevel(levelName string) {
-	logger.SetLevel(levelName)
+func (l *loggerServiceImpl) SetLevel(levelName string) {
+	l.logger.SetLevel(levelName)
 }
 
-func Infof(format string, args ...interface{}) {
-	Logf(golog.InfoLevel, format, args...)
+func (l *loggerServiceImpl) Infof(format string, args ...interface{}) {
+	l.Logf(golog.InfoLevel, format, args...)
 }
 
-func Debugf(format string, args ...interface{}) {
-	Logf(golog.DebugLevel, format, args...)
+func (l *loggerServiceImpl) Debugf(format string, args ...interface{}) {
+	l.Logf(golog.DebugLevel, format, args...)
 }
 
-func Errorf(format string, args ...interface{}) {
-	Logf(golog.ErrorLevel, format, args...)
+func (l *loggerServiceImpl) Errorf(format string, args ...interface{}) {
+	l.Logf(golog.ErrorLevel, format, args...)
 
 	// send message when log
 	sentry.ConfigureScope(func(scope *sentry.Scope) {
@@ -38,8 +55,8 @@ func Errorf(format string, args ...interface{}) {
 	})
 }
 
-func Warnf(format string, args ...interface{}) {
-	Logf(golog.WarnLevel, format, args...)
+func (l *loggerServiceImpl) Warnf(format string, args ...interface{}) {
+	l.Logf(golog.WarnLevel, format, args...)
 
 	// send message when log
 	sentry.ConfigureScope(func(scope *sentry.Scope) {
@@ -48,8 +65,8 @@ func Warnf(format string, args ...interface{}) {
 	})
 }
 
-func Fatalf(format string, args ...interface{}) {
-	Logf(golog.FatalLevel, format, args...)
+func (l *loggerServiceImpl) Fatalf(format string, args ...interface{}) {
+	l.Logf(golog.FatalLevel, format, args...)
 
 	// send message when log
 	sentry.ConfigureScope(func(scope *sentry.Scope) {
@@ -58,7 +75,7 @@ func Fatalf(format string, args ...interface{}) {
 	})
 }
 
-func Logf(level golog.Level, format string, arg ...interface{}) {
+func (l *loggerServiceImpl) Logf(level golog.Level, format string, arg ...interface{}) {
 	shouldSkip := true
 	skipTimes := 0
 
@@ -70,11 +87,11 @@ func Logf(level golog.Level, format string, arg ...interface{}) {
 	)
 
 	funNames := []string{
-		"pkg/logger.Logf",
-		"pkg/logger.Errorf",
-		"pkg/logger.Debugf",
-		"pkg/logger.Warnf",
-		"pkg/logger.Infof",
+		"pkg/logger.(*loggerServiceImpl).Logf",
+		"pkg/logger.(*loggerServiceImpl).Errorf",
+		"pkg/logger.(*loggerServiceImpl).Debugf",
+		"pkg/logger.(*loggerServiceImpl).Warnf",
+		"pkg/logger.(*loggerServiceImpl).Infof",
 	}
 
 	for shouldSkip {
@@ -98,6 +115,6 @@ func Logf(level golog.Level, format string, arg ...interface{}) {
 	funNamePart := strings.Split(funName, ".")
 	funName = funNamePart[len(funNamePart)-1]
 
-	logger.SetPrefix(fmt.Sprintf("[%s:%d] %s: ", file, line, funName))
-	logger.Logf(level, format, arg...)
+	l.logger.SetPrefix(fmt.Sprintf("[%s:%d] %s: ", file, line, funName))
+	l.logger.Logf(level, format, arg...)
 }

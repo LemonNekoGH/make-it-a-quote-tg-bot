@@ -1,21 +1,27 @@
 package sentry
 
 import (
-	"log"
-
 	"github.com/LemonNekoGH/make-it-a-quote-tg-bot/internal/config"
 	"github.com/LemonNekoGH/make-it-a-quote-tg-bot/pkg/logger"
 	sentry "github.com/getsentry/sentry-go"
+	"github.com/samber/do"
 )
 
-func Init() {
-	if config.Conf.Sentry.Dsn == "" {
-		log.Println("没有 DSN 配置，不会初始化 Sentry")
-		return
+type SentryService interface{}
+
+type sentryServiceImpl struct{}
+
+func NewSentryService(injector *do.Injector) (SentryService, error) {
+	c := do.MustInvoke[config.ConfigService](injector)
+	logger := do.MustInvoke[logger.LoggerService](injector)
+
+	if c.Config().Sentry.Dsn == "" {
+		logger.Infof("没有 DSN 配置，不会初始化 Sentry")
+		return nil, nil
 	}
 	// sentry
 	err := sentry.Init(sentry.ClientOptions{
-		Dsn:              config.Conf.Sentry.Dsn,
+		Dsn:              c.Config().Sentry.Dsn,
 		AttachStacktrace: true,
 		TracesSampleRate: 1.0,
 		Environment:      config.Env,
@@ -26,4 +32,6 @@ func Init() {
 	}
 
 	logger.Infof("[成功] Sentry 初始化成功")
+
+	return &sentryServiceImpl{}, nil
 }

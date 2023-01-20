@@ -13,8 +13,9 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/kataras/pio v0.0.11 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/stretchr/objx v0.5.0 // indirect
-	github.com/stretchr/testify v1.8.1 // indirect
-	golang.org/x/sys v0.0.0-20220928140112-f11e5e49a4ec // indirect
+	github.com/samber/do v1.5.1
+	github.com/stretchr/testify v1.8.1
+	golang.org/x/exp v0.0.0-20230118134722-a68e582fa157
+	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )

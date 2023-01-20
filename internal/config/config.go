@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/LemonNekoGH/make-it-a-quote-tg-bot/pkg/logger"
+	"github.com/samber/do"
 	"gopkg.in/yaml.v3"
 
 	_ "embed"
@@ -29,10 +30,28 @@ type Config struct {
 	Sentry   SentryConfig   `yaml:"sentry"`
 }
 
-var Conf *Config // 配置
+type ConfigService interface {
+	Config() *Config
+}
 
-// 初始化配置
-func Init() {
+type configService struct {
+	conf *Config
+}
+
+type ConfigServiceForTest struct {
+	Conf *Config
+}
+
+func (c *configService) Config() *Config {
+	return c.conf
+}
+
+func (c *ConfigServiceForTest) Config() *Config {
+	return c.Conf
+}
+
+func NewConfigService(injector *do.Injector) (ConfigService, error) {
+	logger := do.MustInvoke[logger.LoggerService](injector)
 	var confContent []byte
 	var err error = nil
 	// 读取环境变量
@@ -50,10 +69,14 @@ func Init() {
 	}
 
 	// 读取完成，映射成对象
-	Conf = new(Config)
-	err = yaml.Unmarshal(confContent, Conf)
+	conf := new(Config)
+	err = yaml.Unmarshal(confContent, conf)
 	if err != nil {
 		panic(err)
 	}
 	logger.Infof("配置文件加载成功")
+
+	return &configService{
+		conf: conf,
+	}, nil
 }
