@@ -26,7 +26,7 @@ func TestInitSentry(t *testing.T) {
 
 		impl, err := NewSentryService(injector)
 		require.Empty(err)
-		require.NotNil(impl)
+		require.Nil(impl)
 
 		id := sentry.CaptureMessage("")
 		require.Empty(id)

@@ -27,3 +27,5 @@ dist-ssr
 pngTest/
 
 config.yaml
+
+coverage.txt

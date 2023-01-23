@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"sync"
 
+	_ "embed"
+
 	"github.com/LemonNekoGH/make-it-a-quote-tg-bot/internal/config"
 	"github.com/LemonNekoGH/make-it-a-quote-tg-bot/pkg/logger"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -63,8 +65,6 @@ func (t *telgeramBotServiceImpl) Start(ctx context.Context, wg *sync.WaitGroup) 
 
 func (t *telgeramBotServiceImpl) RegisterCommand(processors CommandProcessors) {
 	maps.Copy(t.commandProcessors, processors)
-
-	fmt.Printf("%+v\n", t.commandProcessors)
 }
 
 func (t *telgeramBotServiceImpl) Bot() *tgbotapi.BotAPI {
@@ -82,6 +82,10 @@ func (t *telgeramBotServiceImpl) processCommand(msg *tgbotapi.Message) {
 	if !msg.IsCommand() {
 		return
 	}
+	// 不是发送给自己的不处理
+	if !t.bot.IsMessageToMe(*msg) {
+		return
+	}
 
 	// 把命令路由到该去的地方
 	cmd := msg.Command()
@@ -93,6 +97,12 @@ func (t *telgeramBotServiceImpl) processCommand(msg *tgbotapi.Message) {
 		err := processor(msg)
 		if err != nil {
 			t.logger.Errorf("processer error: %s, command: %s", err.Error(), cmd)
+		}
+
+		// recover panic
+		anyErr := recover()
+		if anyErr != nil {
+			t.logger.Errorf("processer error: %s, command: %s", anyErr, cmd)
 		}
 	}
 }
