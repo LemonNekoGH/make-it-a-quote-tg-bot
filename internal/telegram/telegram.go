@@ -39,7 +39,7 @@ type telgeramBotServiceImpl struct {
 func (t *telgeramBotServiceImpl) Start(ctx context.Context, wg *sync.WaitGroup) {
 	// send start message
 	if t.config.Config().Telegram.NotifyTo != 0 {
-		_, err := t.bot.Send(tgbotapi.NewMessage(t.config.Config().Telegram.NotifyTo, fmt.Sprintf("QuoteBot start success! username is @%s", t.bot.Self.UserName)))
+		_, err := t.bot.Send(tgbotapi.NewMessage(t.config.Config().Telegram.NotifyTo, fmt.Sprintf("QuoteBot started! username is @%s", t.bot.Self.UserName)))
 		if err != nil {
 			t.logger.Warnf("[失败] TG Bot 初始化消息发送失败：%s", err.Error())
 		} else {
