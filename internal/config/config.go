@@ -1,12 +1,10 @@
 package config
 
 import (
-	"io/ioutil"
 	"os"
+	"strconv"
 
-	"github.com/LemonNekoGH/make-it-a-quote-tg-bot/pkg/logger"
 	"github.com/samber/do"
-	"gopkg.in/yaml.v3"
 
 	_ "embed"
 )
@@ -51,32 +49,17 @@ func (c *ConfigServiceForTest) Config() *Config {
 }
 
 func NewConfigService(injector *do.Injector) (ConfigService, error) {
-	logger := do.MustInvoke[logger.LoggerService](injector)
-	var confContent []byte
-	var err error = nil
-	// 读取环境变量
-	configFile := os.Getenv("BOT_CONFIG_PATH")
-
-	var file *os.File
-	// 读取环境变量中指定的文件
-	file, err = os.Open(configFile)
+	notifyTo, err := strconv.Atoi(os.Getenv("NOTIFY_CHAT_ID"))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	confContent, err = ioutil.ReadAll(file)
-	if err != nil {
-		panic(err)
-	}
-
-	// 读取完成，映射成对象
-	conf := new(Config)
-	err = yaml.Unmarshal(confContent, conf)
-	if err != nil {
-		panic(err)
-	}
-	logger.Infof("配置文件加载成功")
 
 	return &configService{
-		conf: conf,
+		conf: &Config{
+			Telegram: TelegramConfig{
+				Token:    os.Getenv("BOT_TOKEN"),
+				NotifyTo: int64(notifyTo),
+			},
+		},
 	}, nil
 }
