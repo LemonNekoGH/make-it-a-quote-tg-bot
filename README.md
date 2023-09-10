@@ -16,7 +16,7 @@ docker run --name <容器名称> \
   -e BOT_TOKEN=<你的 Bot 接口令牌> \
   -e NOTIFY_CHAT_ID=<启动时要提醒的对话 id> \
   --restart always \
-  lemonnekogh/make-it-a-quote-tg
+  ghcr.io/lemonnekogh/make-it-a-quote-tg:go-latest
 ```
 加上 `--restart always` 是为了在容器挂掉之后重新启动，不需要的话，去掉就好了
 ## TodoList
